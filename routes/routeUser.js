@@ -5,6 +5,7 @@
 
 const fs = require("fs"),
     User = require("./../model/modelUser"),
+    Post = require("./../model/modelPost"),
     logPath = './log/server.log';
 
 module.exports = (app) => {
@@ -32,15 +33,36 @@ module.exports = (app) => {
      * POST /user/post
      */
     app.post("/user/post", (req, res) => {
-        const post = {
-            description: req.body.post
+        const post = new Post({
+            userId: req.body.user,
+            description: req.body.description
+        })
+        post.save().then(post => {
+            res.send({ error: false, message: "successfully created", post: post });
+        }, err => {
+            console.log(`something wrong at ${req.method}:${req.url} ${err}`);
+            fs.appendFile(logPath, `\t${req.method}:${req.url} ${err}\n`);
+            res.send("oops...!!!")
+        })
+    })
+
+    /**
+     * POST /user/post/comment/:post/:user
+     */
+
+    app.post("/user/post/comment", (req, res) => {
+        const postComment = {
+            commentFrom: req.body.user,
+            commnetMessage: req.body.commentMessage
         }
-        User.findOneAndUpdate({ _id: req.body.user }, { $addToSet: { post: post } }, { new: true }, (err, post) => {
+        console.log("comment: ", postComment)
+        Post.findOneAndUpdate({ _id: req.body.comment }, { $addToSet: { comment: postComment } }, { new: true }, (err, post) => {
             if (err) {
-                fs.appendFile(logPath, `\t onPostUpdate ${req.method}:${req.url} ${err}`);
-                res.send("fail: ", err);
+                console.log("post comment: ", err);
+                res.send("something wrong")
+            } else {
+                res.send({ error: false, message: "success", post });
             }
-            res.send(post);
         })
     })
 }

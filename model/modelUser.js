@@ -28,31 +28,7 @@ const scheemaUser = new mongoose.Schema({
     },
     apiKey: {
         type: String
-    },
-    post: [{
-        _id: {
-            type: String
-        },
-        description: {
-            type: String
-        },
-        comment: [{
-            commentFrom: {
-                type: mongoose.Schema.ObjectId
-            },
-            commnetMessage: {
-                type: String
-            },
-            commentLike: {
-                type: Number
-            }
-        }],
-        like: [{
-            likeFrom: {
-                type: mongoose.Schema.ObjectId
-            }
-        }]
-    }]
+    }
 });
 
 scheemaUser.pre("save", function(next) {
